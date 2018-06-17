@@ -1,10 +1,21 @@
-# gpx-to-csv-converter
+# GPX to CSV Converter
 A handy tool for converting GPX files exported from Strava, WatShout, etc into easily readable CSV files
 
-Official readme coming soon! I am in the process of packaging this into a real module
+I made this tool to make it easier to perform calculations on large amounts of GPX data collected from a GPS.
+Rather than manually copy and paste files into an Excel spreadsheet this module simple inputs the GPX file
+(as a string, for now) and exports a nicely-formatted CSV file.
 
-### Usage:
+### Format
 
+For now the module exports the following GPX tags to the CSV file:
+* Date
+* Time
+* Latitude
+* Longitude
+* Elevation
+* Heart Rate
+
+### Usage
 
 1. Install module using pip
 ```python
