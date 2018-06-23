@@ -24,7 +24,9 @@ class Converter:
         trkpt = mydoc.getElementsByTagName('trkpt')
         time = mydoc.getElementsByTagName('time')
         ele = mydoc.getElementsByTagName('ele')
-        hr = mydoc.getElementsByTagName('gpxtpx:hr')
+        #hr = mydoc.getElementsByTagName('gpxtpx:hr')
+        hr = mydoc.getElementsByTagName('ns3:hr')
+        cad = mydoc.getElementsByTagName('ns3:cad')
 
         lats = []
         longs = []
@@ -33,6 +35,7 @@ class Converter:
         hrs = []
         dates = []
         parsed_times = []
+        cads = []
 
         for elem in trkpt:
             lats.append(elem.attributes['lat'].value)
@@ -58,16 +61,24 @@ class Converter:
         for elem in ele:
             eles.append(elem.firstChild.data)
 
+        for elem in cad:
+            cads.append(elem.firstChild.data)
+
+        hrs.append(0)
+
         data = {'date': dates,
                 'time': parsed_times,
                 'latitude': lats,
                 'longitude': longs,
                 'elevation': eles,
-                'heart_rate': hrs}
+                'heart_rate': hrs,
+                'cadence': cads}
+
+        print(len(dates), len(parsed_times), len(lats), len(longs), len(eles), len(hrs), len(cads))
 
         df = pd.DataFrame(data=data)
 
-        df = df[['date', 'time', 'latitude', 'longitude', 'elevation', 'heart_rate']]
+        df = df[['date', 'time', 'latitude', 'longitude', 'elevation', 'heart_rate', 'cadence']]
 
         df.to_csv(name, encoding='utf-8', index=False)
 
