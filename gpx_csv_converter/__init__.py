@@ -47,7 +47,6 @@ class Converter:
         for elem in hr:
             hrs.append(elem.firstChild.data)
 
-        times.pop(0)
         base_time = iso_to_epoch(times[0])
 
         time_differences = []
@@ -66,13 +65,13 @@ class Converter:
 
         hrs.append(0)
 
-        data = {'date': dates,
-                'time': parsed_times,
-                'latitude': lats,
-                'longitude': longs,
-                'elevation': eles,
-                'heart_rate': hrs,
-                'cadence': cads}
+        data = {'date': pd.Series(dates),
+                'time': pd.Series(parsed_times),
+                'latitude': pd.Series(lats),
+                'longitude': pd.Series(longs),
+                'elevation': pd.Series(eles),
+                'heart_rate': pd.Series(hrs),
+                'cadence': pd.Series(cads)}
 
         print(len(dates), len(parsed_times), len(lats), len(longs), len(eles), len(hrs), len(cads))
 
