@@ -1,4 +1,3 @@
-pandas
 setuptools
 wheel
 twine
