@@ -1,12 +1,6 @@
 from xml.dom import minidom
-import calendar
-import dateutil.parser
-import pandas as pd
+import csv
 import os
-
-def iso_to_epoch(iso_time):
-    return calendar.timegm(dateutil.parser.parse(iso_time).timetuple())
-
 
 class Converter:
 
@@ -61,6 +55,8 @@ class Converter:
         # parse timestamp (don't mess with timezone)
         for elem in timestamp:
             timestamps.append(elem.firstChild.data)
+        # remove the first <time>, which is a meta tag
+        timestamps = timestamps[1:]
 
         # parse heartrate
         for elem in hr:
@@ -70,19 +66,29 @@ class Converter:
         for elem in elevation:
             elevations.append(elem.firstChild.data)
 
-        # put all data into a dictionary so Pandas will accept it
-        data = {
-                'timestamp': pd.Series(timestamps),
-                'latitude': pd.Series(lats),
-                'longitude': pd.Series(lngs),
-                'elevation': pd.Series(elevations),
-                'heart_rate': pd.Series(hrs)}
+        row_list = []
 
-        # create dataframe from dictionary
-        df = pd.DataFrame(data=data)
+        assert len(lats) == len(lngs), "length of latitudes and longitudes differ"
+        assert len(lngs) == len(timestamps), "length of longitudes and timestamps differ"
+        assert len(timestamps) == len(hrs) or len(hrs) == 0, "length of timestamps and heart rates differ"
+        assert len(hrs) == len(elevations) or len(elevations) == 0, "length of heart rates and elevations diff"
 
-        # specify columns
-        df = df[['timestamp', 'latitude', 'longitude', 'elevation', 'heart_rate']]
+        # we are sure these are all equal
+        num_rows = len(lats)
 
-        # write the pandas dataframe to a CSV file
-        df.to_csv(output_file_name, encoding='utf-8', index=False)
+        for i in range(num_rows):
+            timestamp = timestamps[i]
+            lat = lats[i]
+            lng = lngs[i]
+            elevation = elevations[i] if len(elevations) != 0 else None
+            heart_rate = hrs[i] if len(hrs) != 0 else None
+            this_row = [timestamp, lat, lng, elevation, heart_rate]
+            row_list.append(this_row)
+
+        columns = ["timestamp", "latitude", "longitude", "elevation", "heart_rate"]
+
+        with open(output_file_name, "w", newline="") as output_file:
+            writer = csv.writer(output_file)
+            writer.writerow(columns)
+            writer.writerows(row_list)
+
