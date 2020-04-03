@@ -2,8 +2,8 @@ from xml.dom import minidom
 import csv
 import os
 
-class Converter:
 
+class Converter:
     def __init__(self, **kwargs):
         input_file_name = kwargs.get("input_file")
         output_file_name = kwargs.get("output_file")
@@ -31,14 +31,13 @@ class Converter:
             gpx_string = gpx_in.read()
             self.convert(gpx_string, output_file_name)
 
-
     def convert(self, gpx_string, output_file_name):
         mydoc = minidom.parseString(gpx_string)
 
-        trkpt = mydoc.getElementsByTagName('trkpt')
-        timestamp = mydoc.getElementsByTagName('time')
-        elevation = mydoc.getElementsByTagName('ele')
-        hr = mydoc.getElementsByTagName('gpxtpx:hr')
+        trkpt = mydoc.getElementsByTagName("trkpt")
+        timestamp = mydoc.getElementsByTagName("time")
+        elevation = mydoc.getElementsByTagName("ele")
+        hr = mydoc.getElementsByTagName("gpxtpx:hr")
 
         lats = []
         lngs = []
@@ -49,8 +48,8 @@ class Converter:
 
         # parse coordinate pairs
         for elem in trkpt:
-            lats.append(elem.attributes['lat'].value)
-            lngs.append(elem.attributes['lon'].value)
+            lats.append(elem.attributes["lat"].value)
+            lngs.append(elem.attributes["lon"].value)
 
         # parse timestamp (don't mess with timezone)
         for elem in timestamp:
@@ -69,9 +68,15 @@ class Converter:
         row_list = []
 
         assert len(lats) == len(lngs), "length of latitudes and longitudes differ"
-        assert len(lngs) == len(timestamps), "length of longitudes and timestamps differ"
-        assert len(timestamps) == len(hrs) or len(hrs) == 0, "length of timestamps and heart rates differ"
-        assert len(hrs) == len(elevations) or len(elevations) == 0, "length of heart rates and elevations diff"
+        assert len(lngs) == len(
+            timestamps
+        ), "length of longitudes and timestamps differ"
+        assert (
+            len(timestamps) == len(hrs) or len(hrs) == 0
+        ), "length of timestamps and heart rates differ"
+        assert (
+            len(hrs) == len(elevations) or len(elevations) == 0
+        ), "length of heart rates and elevations diff"
 
         # we are sure these are all equal
         num_rows = len(lats)
@@ -91,4 +96,3 @@ class Converter:
             writer = csv.writer(output_file)
             writer.writerow(columns)
             writer.writerows(row_list)
-
