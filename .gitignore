@@ -2,3 +2,8 @@ build
 dist
 gpx_csv_converter.egg-info
 .idea
+**/venv/**
+**/.DS_Store
+**/__pycache__/**
+*.swp
+*.swo

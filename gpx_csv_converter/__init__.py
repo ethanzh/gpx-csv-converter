@@ -2,10 +2,7 @@ from xml.dom import minidom
 import calendar
 import dateutil.parser
 import pandas as pd
-
-
-test = "gpx_csv_converter"
-
+import os
 
 def iso_to_epoch(iso_time):
     return calendar.timegm(dateutil.parser.parse(iso_time).timetuple())
@@ -13,72 +10,79 @@ def iso_to_epoch(iso_time):
 
 class Converter:
 
-    def __init__(self, string, name):
+    def __init__(self, **kwargs):
+        input_file_name = kwargs.get("input_file")
+        output_file_name = kwargs.get("output_file")
 
-        if name[-4:] != '.csv':
-            name = name + '.csv'
+        if not input_file_name or not output_file_name:
+            raise TypeError("You must specify an input and output file")
 
-        # parse an xml file by name
-        mydoc = minidom.parseString(string)
+        input_file_abs_path = os.path.abspath(input_file_name)
+        input_file_exists = os.path.exists(input_file_abs_path)
+
+        if not input_file_exists:
+            raise TypeError(f"The file {input_file_name} does not exist.")
+
+        input_extension = os.path.splitext(input_file_name)[1]
+
+        if input_extension != ".gpx":
+            raise TypeError(f"Input file must be a GPX file")
+
+        output_extension = os.path.splitext(output_file_name)[1]
+
+        if output_extension != ".csv":
+            raise TypeError(f"Output file must be a CSV file")
+
+        with open(input_file_abs_path, "r") as gpx_in:
+            gpx_string = gpx_in.read()
+            self.convert(gpx_string, output_file_name)
+
+
+    def convert(self, gpx_string, output_file_name):
+        mydoc = minidom.parseString(gpx_string)
 
         trkpt = mydoc.getElementsByTagName('trkpt')
-        time = mydoc.getElementsByTagName('time')
-        ele = mydoc.getElementsByTagName('ele')
-        #hr = mydoc.getElementsByTagName('gpxtpx:hr')
-        hr = mydoc.getElementsByTagName('ns3:hr')
-        cad = mydoc.getElementsByTagName('ns3:cad')
+        timestamp = mydoc.getElementsByTagName('time')
+        elevation = mydoc.getElementsByTagName('ele')
+        hr = mydoc.getElementsByTagName('gpxtpx:hr')
 
         lats = []
-        longs = []
-        times = []
-        eles = []
+        lngs = []
+        timestamps = []
+        elevations = []
         hrs = []
         dates = []
-        parsed_times = []
-        cads = []
 
+        # parse coordinate pairs
         for elem in trkpt:
             lats.append(elem.attributes['lat'].value)
-            longs.append(elem.attributes['lon'].value)
+            lngs.append(elem.attributes['lon'].value)
 
-        for elem in time:
-            times.append(elem.firstChild.data)
+        # parse timestamp (don't mess with timezone)
+        for elem in timestamp:
+            timestamps.append(elem.firstChild.data)
 
+        # parse heartrate
         for elem in hr:
             hrs.append(elem.firstChild.data)
 
-        base_time = iso_to_epoch(times[0])
+        # parse elevation
+        for elem in elevation:
+            elevations.append(elem.firstChild.data)
 
-        time_differences = []
-
-        for item in times:
-            time_differences.append(iso_to_epoch(item) - base_time)
-            date_obj = (dateutil.parser.parse(item))
-            dates.append(str(date_obj.year) + "-" + str(date_obj.month) + "-" + str(date_obj.day))
-            parsed_times.append(str(date_obj.hour) + ":" + str(date_obj.minute) + ":" + str(date_obj.second))
-
-        for elem in ele:
-            eles.append(elem.firstChild.data)
-
-        for elem in cad:
-            cads.append(elem.firstChild.data)
-
-        hrs.append(0)
-
-        data = {'date': pd.Series(dates),
-                'time': pd.Series(parsed_times),
+        # put all data into a dictionary so Pandas will accept it
+        data = {
+                'timestamp': pd.Series(timestamps),
                 'latitude': pd.Series(lats),
-                'longitude': pd.Series(longs),
-                'elevation': pd.Series(eles),
-                'heart_rate': pd.Series(hrs),
-                'cadence': pd.Series(cads)}
+                'longitude': pd.Series(lngs),
+                'elevation': pd.Series(elevations),
+                'heart_rate': pd.Series(hrs)}
 
-        print(len(dates), len(parsed_times), len(lats), len(longs), len(eles), len(hrs), len(cads))
-
+        # create dataframe from dictionary
         df = pd.DataFrame(data=data)
 
-        df = df[['date', 'time', 'latitude', 'longitude', 'elevation', 'heart_rate', 'cadence']]
+        # specify columns
+        df = df[['timestamp', 'latitude', 'longitude', 'elevation', 'heart_rate']]
 
-        df.to_csv(name, encoding='utf-8', index=False)
-
-        print("Done!")
+        # write the pandas dataframe to a CSV file
+        df.to_csv(output_file_name, encoding='utf-8', index=False)
