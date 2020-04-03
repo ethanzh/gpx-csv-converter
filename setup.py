@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gpx_csv_converter",
-    version="0.1",
+    version="0.1.1",
     author="Ethan Houston",
     author_email="ethan.houston@gmail.com",
     description="A way to convert between GPX and CSV files",
