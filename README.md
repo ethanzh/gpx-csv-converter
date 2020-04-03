@@ -8,8 +8,7 @@ Rather than manually copy and paste files into an Excel spreadsheet this module 
 ### Format
 
 For now the module exports the following GPX tags to the CSV file:
-* Date
-* Time
+* Timestamp
 * Latitude
 * Longitude
 * Elevation
@@ -25,10 +24,9 @@ pip install gpx-csv-converter
 ```python
 from gpx_csv_converter import Converter
 ```
-3. Currently the module takes two inputs: the GPX string itself and the
-desired file name (file parsing coming soon)
+3. Converter takes two keyword arguments, 'input_file' and 'output_file'
 ```python
-Converter(my_gpx_string, 'my_csv_file.csv')
+Converter(input_file="input.gpx", output_file="output.csv")
 ```
 This will output a CSV file to the current directory
 
