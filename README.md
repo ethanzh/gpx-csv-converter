@@ -2,8 +2,7 @@
 A handy tool for converting GPX files exported from Strava, WatShout, etc into easily readable CSV files
 
 I made this tool to make it easier to perform calculations on large amounts of GPX data collected from a GPS.
-Rather than manually copy and paste files into an Excel spreadsheet this module simple inputs the GPX file
-(as a string, for now) and exports a nicely-formatted CSV file.
+Rather than manually copy and paste files into an Excel spreadsheet this module simple inputs the GPX file and exports a CSV file.
 
 ### Format
 
