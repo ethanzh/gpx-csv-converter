@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.1.1",
     author="Ethan Houston",
     author_email="ethan.houston@gmail.com",
-    description="A way to convert between GPX and CSV files",
+    description="An easy way to convert between GPX and CSV files",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ethanzh/gpx-csv-converter",
