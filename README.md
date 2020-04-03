@@ -1,4 +1,6 @@
 # GPX to CSV Converter
+[![Downloads](https://pepy.tech/badge/gpx-csv-converter)](https://pepy.tech/project/gpx-csv-converter)
+
 A handy tool for converting GPX files exported from Strava, WatShout, etc into easily readable CSV files
 
 I made this tool to make it easier to perform calculations on large amounts of GPX data collected from a GPS.
