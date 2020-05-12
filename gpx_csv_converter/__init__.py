@@ -35,64 +35,42 @@ class Converter:
         mydoc = minidom.parseString(gpx_string)
 
         trkpt = mydoc.getElementsByTagName("trkpt")
-        timestamp = mydoc.getElementsByTagName("time")
-        elevation = mydoc.getElementsByTagName("ele")
-        hr = mydoc.getElementsByTagName("gpxtpx:hr")
-
-        lats = []
-        lngs = []
-        timestamps = []
-        elevations = []
-        hrs = []
-        dates = []
-
-        # parse coordinate pairs
-        for elem in trkpt:
-            lats.append(elem.attributes["lat"].value)
-            lngs.append(elem.attributes["lon"].value)
-
-        # parse timestamp (don't mess with timezone)
-        for elem in timestamp:
-            timestamps.append(elem.firstChild.data)
-        # remove the first <time>, which is a meta tag
-        timestamps = timestamps[1:]
-
-        # parse heartrate
-        for elem in hr:
-            hrs.append(elem.firstChild.data)
-
-        # parse elevation
-        for elem in elevation:
-            elevations.append(elem.firstChild.data)
-
         row_list = []
+        
+        columns = ["timestamp", "latitude", "longitude", "elevation", "heart_rate"]
 
-        assert len(lats) == len(lngs), "length of latitudes and longitudes differ"
-        assert len(lngs) == len(
-            timestamps
-        ), "length of longitudes and timestamps differ"
-        assert (
-            len(timestamps) == len(hrs) or len(hrs) == 0
-        ), "length of timestamps and heart rates differ"
-        assert (
-            len(hrs) == len(elevations) or len(elevations) == 0
-        ), "length of heart rates and elevations diff"
+        # define type of heart rate field
+        # garmin and other providers may have different elements for the hr field
+        potential_fields_hr=["ns3:hr","gpxtpx:hr"]
+        heart_rate_field=potential_fields_hr[0] # default
+        for potential_field in potential_fields_hr:
+            if len(mydoc.getElementsByTagName(potential_field))>0:
+               heart_rate_field=potential_field
 
-        # we are sure these are all equal
-        num_rows = len(lats)
+        # parse trackpoint elements. Search for child elements in each trackpoint so they stay in sync.
+        for elem in trkpt:
+            etimestamp=elem.getElementsByTagName("time")
+            timestamp=None
+            for selem in etimestamp:
+                timestamp=(selem.firstChild.data)
 
-        for i in range(num_rows):
-            timestamp = timestamps[i]
-            lat = lats[i]
-            lng = lngs[i]
-            elevation = elevations[i] if len(elevations) != 0 else None
-            heart_rate = hrs[i] if len(hrs) != 0 else None
+            lat=(elem.attributes["lat"].value)
+            lng=(elem.attributes["lon"].value)
+            
+            eelevation=elem.getElementsByTagName("ele")
+            elevation=None
+            for selem in eelevation:
+                elevation=(selem.firstChild.data)
+            
+            eheart_rate=elem.getElementsByTagName(heart_rate_field)
+            heart_rate=None
+            for selem in eheart_rate:
+                heart_rate=(selem.firstChild.data)
+            
             this_row = [timestamp, lat, lng, elevation, heart_rate]
             row_list.append(this_row)
-
-        columns = ["timestamp", "latitude", "longitude", "elevation", "heart_rate"]
 
         with open(output_file_name, "w", newline="") as output_file:
             writer = csv.writer(output_file)
             writer.writerow(columns)
-            writer.writerows(row_list)
+            writer.writerows(row_list) 
