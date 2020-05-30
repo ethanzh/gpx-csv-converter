@@ -15,17 +15,17 @@ class Converter:
         input_file_exists = os.path.exists(input_file_abs_path)
 
         if not input_file_exists:
-            raise TypeError(f"The file {input_file_name} does not exist.")
+            raise TypeError("The file %s does not exist." % input_file_name)
 
         input_extension = os.path.splitext(input_file_name)[1]
 
         if input_extension != ".gpx":
-            raise TypeError(f"Input file must be a GPX file")
+            raise TypeError("Input file must be a GPX file")
 
         output_extension = os.path.splitext(output_file_name)[1]
 
         if output_extension != ".csv":
-            raise TypeError(f"Output file must be a CSV file")
+            raise TypeError("Output file must be a CSV file")
 
         with open(input_file_abs_path, "r") as gpx_in:
             gpx_string = gpx_in.read()
@@ -70,7 +70,7 @@ class Converter:
             this_row = [timestamp, lat, lng, elevation, heart_rate]
             row_list.append(this_row)
 
-        with open(output_file_name, "w", newline="") as output_file:
+        with open(output_file_name, "w") as output_file:
             writer = csv.writer(output_file)
             writer.writerow(columns)
             writer.writerows(row_list) 
