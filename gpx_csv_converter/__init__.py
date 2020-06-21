@@ -1,10 +1,17 @@
+"""
+GPX -> CSV converter
+"""
 from xml.dom import minidom
 import csv
 import os
 
 
 class Converter:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
+        """
+        main class function
+        :param kwargs: input and output file required
+        """
         input_file_name = kwargs.get("input_file")
         output_file_name = kwargs.get("output_file")
 
@@ -31,7 +38,13 @@ class Converter:
             gpx_string = gpx_in.read()
             self.convert(gpx_string, output_file_name)
 
-    def convert(self, gpx_string, output_file_name):
+    def convert(self, gpx_string: str, output_file_name: str) -> None:
+        """
+        Core conversion method
+        :param gpx_string: GPX XML data
+        :param output_file_name: output file name
+        :return:
+        """
         mydoc = minidom.parseString(gpx_string)
 
         trkpt = mydoc.getElementsByTagName("trkpt")
