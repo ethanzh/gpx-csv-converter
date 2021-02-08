@@ -83,7 +83,7 @@ class Converter:
             this_row = [timestamp, lat, lng, elevation, heart_rate]
             row_list.append(this_row)
 
-        with open(output_file_name, "wb") as output_file:
+        with open(output_file_name, "w") as output_file:
             writer = csv.writer(output_file)
             writer.writerow(columns)
             writer.writerows(row_list)
