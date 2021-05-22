@@ -50,7 +50,7 @@ class Converter:
         trkpt = mydoc.getElementsByTagName("trkpt")
         row_list = []
 
-        columns = ["timestamp", "latitude", "longitude", "elevation", "heart_rate"]
+        columns = ["timestamp", "latitude", "longitude", "elevation", "heart_rate", "power"]
 
         # define type of heart rate field
         # garmin and other providers may have different elements for the hr field
@@ -59,6 +59,12 @@ class Converter:
         for potential_field in potential_fields_hr:
             if len(mydoc.getElementsByTagName(potential_field)) > 0:
                 heart_rate_field = potential_field
+                
+        potential_fields_pwr = ["pwr:PowerInWatts"]
+        power_field = potential_fields_pwr[0]  # default
+        for potential_field_1 in potential_fields_pwr:
+            if len(mydoc.getElementsByTagName(potential_field_1)) > 0:
+                power_field = potential_field_1
 
         # parse trackpoint elements. Search for child elements in each trackpoint so they stay in sync.
         for elem in trkpt:
@@ -80,10 +86,15 @@ class Converter:
             for selem in eheart_rate:
                 heart_rate = selem.firstChild.data
 
-            this_row = [timestamp, lat, lng, elevation, heart_rate]
+            epower = elem.getElementsByTagName(power_field)
+            power = None
+            for selem in epower:
+                power = selem.firstChild.data
+
+            this_row = [timestamp, lat, lng, elevation, heart_rate, power]
             row_list.append(this_row)
 
-        with open(output_file_name, "wb") as output_file:
+        with open(output_file_name, "w") as output_file:
             writer = csv.writer(output_file)
             writer.writerow(columns)
             writer.writerows(row_list)
